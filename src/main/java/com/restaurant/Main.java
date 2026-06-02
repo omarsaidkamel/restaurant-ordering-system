@@ -15,10 +15,12 @@ import com.restaurant.notification.SMSNotification;
 import com.restaurant.payment.PaymentMethod;
 import com.restaurant.payment.WalletPayment;
 import com.restaurant.repository.Repository;
+import com.restaurant.service.NotificationService;
 import com.restaurant.service.OrderService;
 import com.restaurant.service.PaymentService;
 
 import java.util.Comparator;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -95,7 +97,17 @@ public class Main {
         SMSNotification smsNotification = new SMSNotification();
         smsNotification.sendNotification("Order paid successfully");
 
+        EmailNotification emailNotification1 = new EmailNotification();
+        SMSNotification smsNotification1 = new SMSNotification();
+        AppNotification appNotification1 = new AppNotification();
 
+        NotificationService notificationService = new NotificationService(
+                List.of(emailNotification1, smsNotification1, appNotification1)
+        );
+
+        notificationService.sendToAll("Order paid successfully");
+
+        emailNotification.sendAttachment("Invoice.pdf");
 
         System.out.println("----------------");
 

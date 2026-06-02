@@ -9,9 +9,12 @@ import com.restaurant.entity.Product;
 import com.restaurant.entity.User;
 import com.restaurant.exception.OrderNotPlacedException;
 import com.restaurant.exception.OutOfStockException;
+import com.restaurant.factory.DiscountFactory;
+import com.restaurant.factory.PaymentFactory;
 import com.restaurant.notification.AppNotification;
 import com.restaurant.notification.EmailNotification;
 import com.restaurant.notification.SMSNotification;
+import com.restaurant.payment.CashPayment;
 import com.restaurant.payment.PaymentMethod;
 import com.restaurant.payment.WalletPayment;
 import com.restaurant.repository.Repository;
@@ -88,15 +91,6 @@ public class Main {
             System.out.println(e.getMessage());
         }
 
-        EmailNotification emailNotification = new EmailNotification();
-        emailNotification.sendNotification("Order paid successfully");
-        emailNotification.sendAttachment("Invoice.pdf");
-
-        AppNotification appNotification = new AppNotification();
-        appNotification.sendNotification("Order paid successfully");
-        SMSNotification smsNotification = new SMSNotification();
-        smsNotification.sendNotification("Order paid successfully");
-
         EmailNotification emailNotification1 = new EmailNotification();
         SMSNotification smsNotification1 = new SMSNotification();
         AppNotification appNotification1 = new AppNotification();
@@ -105,9 +99,16 @@ public class Main {
                 List.of(emailNotification1, smsNotification1, appNotification1)
         );
 
+        PaymentFactory paymentFactory = new PaymentFactory();
+
+        PaymentMethod walletPayment22 = paymentFactory.createPaymentMethod("wallet");
+
+        DiscountFactory discountFactory = new DiscountFactory();
+        DiscountStrategy discountStrategy22 = discountFactory.createDiscountStrategy("percentage",10);
+
         notificationService.sendToAll("Order paid successfully");
 
-        emailNotification.sendAttachment("Invoice.pdf");
+        emailNotification1.sendAttachment("Invoice.pdf");
 
         System.out.println("----------------");
 

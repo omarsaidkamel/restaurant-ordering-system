@@ -1,31 +1,9 @@
 package com.restaurant;
 
-import com.restaurant.builder.OrderBuilder;
-import com.restaurant.discount.DiscountStrategy;
-import com.restaurant.discount.FixedDiscount;
-import com.restaurant.discount.NoDiscount;
-import com.restaurant.discount.PercentageDiscount;
 import com.restaurant.entity.Order;
 import com.restaurant.entity.Product;
 import com.restaurant.entity.User;
-import com.restaurant.exception.OrderNotPlacedException;
-import com.restaurant.exception.OutOfStockException;
-import com.restaurant.factory.DiscountFactory;
-import com.restaurant.factory.PaymentFactory;
-import com.restaurant.notification.AppNotification;
-import com.restaurant.notification.EmailNotification;
-import com.restaurant.notification.SMSNotification;
-import com.restaurant.payment.CashPayment;
-import com.restaurant.payment.PaymentMethod;
-import com.restaurant.payment.WalletPayment;
 import com.restaurant.repository.Repository;
-import com.restaurant.service.NotificationService;
-import com.restaurant.service.OrderService;
-import com.restaurant.service.PaymentService;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
@@ -51,135 +29,29 @@ public class Main {
         order3.addItem(cheese, 1);
         order3.addItem(pizza, 2);
 
-        OrderService orderService = new OrderService(order1);
-        PaymentService paymentService = new PaymentService(order1);
+        Repository<Product> productRepository = new Repository<>(Product.class);
 
-        System.out.println("Testing No Discount");
-        PaymentMethod walletPayment = new WalletPayment("Vodafone Cash");
-        DiscountStrategy discountStrategy = new NoDiscount();
+        productRepository.add(pizza);
+        productRepository.add(cola);
+        productRepository.add(burger);
+        productRepository.add(cheese);
 
-        try {
-            orderService.placeOrder();
-            paymentService.payOrder(walletPayment, discountStrategy);
-        } catch (OutOfStockException | OrderNotPlacedException e) {
-            System.out.println(e.getMessage());
-        }
-
-
-        OrderService orderService2 = new OrderService(order2);
-        PaymentService paymentService2 = new PaymentService(order2);
-
-        System.out.println("Testing Percentage Discount");
-        PaymentMethod walletPayment2 = new WalletPayment("Vodafone Cash");
-        DiscountStrategy discountStrategy2 = new PercentageDiscount(10);
-
-        try {
-            orderService2.placeOrder();
-            paymentService2.payOrder(walletPayment2, discountStrategy2);
-        } catch (OutOfStockException | OrderNotPlacedException e) {
-            System.out.println(e.getMessage());
-        }
-
-        System.out.println("Testing Fixed Discount");
-        OrderService orderService3 = new OrderService(order3);
-        PaymentService paymentService3 = new PaymentService(order3);
-        PaymentMethod walletPayment3 = new WalletPayment("Vodafone Cash");
-        DiscountStrategy discountStrategy3 = new FixedDiscount(50);
-
-        try {
-            orderService3.placeOrder();
-            paymentService3.payOrder(walletPayment3, discountStrategy3);
-        } catch (OutOfStockException | OrderNotPlacedException e) {
-            System.out.println(e.getMessage());
-        }
-
-        EmailNotification emailNotification1 = new EmailNotification();
-        SMSNotification smsNotification1 = new SMSNotification();
-        AppNotification appNotification1 = new AppNotification();
-
-        NotificationService notificationService = new NotificationService(
-                List.of(emailNotification1, smsNotification1, appNotification1)
-        );
-
-        PaymentFactory paymentFactory = new PaymentFactory();
-
-        PaymentMethod walletPayment22 = paymentFactory.createPaymentMethod("wallet");
-
-        DiscountFactory discountFactory = new DiscountFactory();
-        DiscountStrategy discountStrategy22 = discountFactory.createDiscountStrategy("percentage",10);
-
-        notificationService.sendToAll("Order paid successfully");
-
-        emailNotification1.sendAttachment("Invoice.pdf");
-
-        Order order = new OrderBuilder()
-                .setId(4)
-                .setUser(user1)
-                .addItem(pizza, 1)
-                .addItem(cola, 3)
-                .build();
-
-        OrderService orderService4 = new OrderService(order);
-        PaymentService paymentService4 = new PaymentService(order);
-
-        PaymentMethod paymentMethod4 = paymentFactory.createPaymentMethod("wallet");
-        DiscountStrategy discountStrategy4 =
-                discountFactory.createDiscountStrategy("percentage", 10);
-
-        try {
-            orderService4.placeOrder();
-            paymentService4.payOrder(paymentMethod4, discountStrategy4);
-        } catch (OutOfStockException | OrderNotPlacedException e) {
-            System.out.println(e.getMessage());
-        }
-
-        System.out.println("----------------");
-
-        order1.displayOrderInfo();
-
-        System.out.println("----------------");
-
-        pizza.display();
-        cola.display();
-
-        System.out.println("----------------");
-
-        Repository<Product> products = new Repository<>(Product.class);
-        products.add(pizza);
-        products.add(cola);
-        products.add(burger);
-        products.add(cheese);
-
-        System.out.println("Products price greater than 100:");
-
-        products.findAll()
-                .stream()
-                .filter(product -> product.getPrice() > 100)
-                .forEach(product -> System.out.println(product.getName()));
-
-        double totalPrices = products.findAll()
-                .stream()
-                .mapToDouble(Product::getPrice)
-                .sum();
-
-        System.out.println("Total products prices: " + totalPrices);
-
-        products.findAll()
-                .stream()
-                .filter(product -> product.getName().equalsIgnoreCase("Pizza"))
-                .findFirst()
+        productRepository.findById(2)
                 .ifPresentOrElse(
                         product -> System.out.println("Product found: " + product.getName()),
                         () -> System.out.println("Product not found")
                 );
 
-        System.out.println("Products sorted by price:");
+        System.out.println("Product with id 10 exists: " + productRepository.existsById(10));
 
-        products.findAll()
-                .stream()
-                .sorted(Comparator.comparingDouble(Product::getPrice))
-                .forEach(product ->
-                        System.out.println(product.getName() + " - " + product.getPrice())
-                );
+        boolean deleted = productRepository.deleteById(3);
+
+        if (deleted) {
+            System.out.println("Product deleted successfully");
+        } else {
+            System.out.println("Product not found for delete");
+        }
+
+        productRepository.count();
     }
 }

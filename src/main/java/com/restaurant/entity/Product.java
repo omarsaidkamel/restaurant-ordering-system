@@ -1,6 +1,6 @@
 package com.restaurant.entity;
 
-public class Product {
+public class Product implements Identifiable {
     private Integer id;
     private String name;
     private double price;
@@ -30,6 +30,7 @@ public class Product {
         System.out.println("Price: " + this.price);
         System.out.println("Stock: " + this.stock);
     }
+    @Override
     public Integer getId() {
         return id;
     }

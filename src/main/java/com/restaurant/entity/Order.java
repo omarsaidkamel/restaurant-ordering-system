@@ -3,7 +3,7 @@ package com.restaurant.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Order {
+public class Order implements Identifiable{
     private Integer id;
     private User user;
     private List<OrderItem> items;
@@ -69,4 +69,7 @@ public class Order {
     public boolean isPaid() {
         return paid;
     }
+
+    @Override
+    public Integer getId() {return id;}
 }

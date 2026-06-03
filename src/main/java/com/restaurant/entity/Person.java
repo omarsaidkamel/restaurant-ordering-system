@@ -1,6 +1,6 @@
 package com.restaurant.entity;
 
-public abstract class Person {
+public abstract class Person implements Identifiable{
     private Integer id;
     private String name;
     private String email;
@@ -16,6 +16,8 @@ public abstract class Person {
         System.out.println("Email: " + this.email);
     }
     public abstract void display();
+
+    @Override
     public Integer getId() {
         return id;
     }

@@ -1,5 +1,6 @@
 package com.restaurant;
 
+import com.restaurant.builder.OrderBuilder;
 import com.restaurant.discount.DiscountStrategy;
 import com.restaurant.discount.FixedDiscount;
 import com.restaurant.discount.NoDiscount;
@@ -24,6 +25,7 @@ import com.restaurant.service.PaymentService;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
@@ -109,6 +111,27 @@ public class Main {
         notificationService.sendToAll("Order paid successfully");
 
         emailNotification1.sendAttachment("Invoice.pdf");
+
+        Order order = new OrderBuilder()
+                .setId(4)
+                .setUser(user1)
+                .addItem(pizza, 1)
+                .addItem(cola, 3)
+                .build();
+
+        OrderService orderService4 = new OrderService(order);
+        PaymentService paymentService4 = new PaymentService(order);
+
+        PaymentMethod paymentMethod4 = paymentFactory.createPaymentMethod("wallet");
+        DiscountStrategy discountStrategy4 =
+                discountFactory.createDiscountStrategy("percentage", 10);
+
+        try {
+            orderService4.placeOrder();
+            paymentService4.payOrder(paymentMethod4, discountStrategy4);
+        } catch (OutOfStockException | OrderNotPlacedException e) {
+            System.out.println(e.getMessage());
+        }
 
         System.out.println("----------------");
 
